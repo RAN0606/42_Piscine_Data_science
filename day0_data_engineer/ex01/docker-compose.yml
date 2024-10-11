@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3'
 services:
   postgres:
     image: postgres
@@ -11,10 +11,14 @@ services:
       - 5432
     ports:
       - "${POSTGRES_PORT}:5432"             # Port mapping for PostgreSQL
+    networks:
+      - pg_network
+    volumes:
+      - postgres:/var/lib/postgresql/data   # Fixed syntax
 
   pgadmin:                                   # Fixed the service name from 'pdadmin' to 'pgadmin'
     image: dpage/pgadmin4
-    container_name: pgadmin_container
+    container_name: pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}      # Email for pgAdmin
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}  # Password for pgAdmin
@@ -23,4 +27,14 @@ services:
     depends_on:
       - postgres
     volumes:
-      - "./pgadmin/var/lib/pgadmin:/var/lib/pgadmin"  # Persistent storage for pgAdmin
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - pg_network          
+  
+networks:
+  pg_network:
+    driver: bridge                          
+  
+volumes:
+  postgres: 
+  pgadmin:
